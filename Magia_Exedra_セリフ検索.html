@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Magia Exedra キャラクター・セリフ検索</title>
+  <style>
+    :root {
+      --ink: #32293a;
+      --muted: #756c7c;
+      --primary: #a53272;
+      --primary-dark: #7f2055;
+      --primary-soft: #fff0f7;
+      --accent: #6e55a6;
+      --line: #eadce5;
+      --surface: rgba(255, 255, 255, 0.94);
+      --danger: #a2293a;
+      --success: #26734d;
+      --shadow: 0 18px 55px rgba(87, 41, 70, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+      line-height: 1.65;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(246, 192, 220, 0.42), transparent 34rem),
+        radial-gradient(circle at 100% 22%, rgba(205, 196, 245, 0.42), transparent 30rem),
+        #fff9fc;
+    }
+
+    button, input { font: inherit; }
+
+    .shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 72px;
+    }
+
+    .hero { margin-bottom: 24px; }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--primary);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 5vw, 2.7rem);
+      line-height: 1.25;
+      letter-spacing: -0.035em;
+    }
+
+    .lead { margin: 8px 0 0; color: var(--muted); }
+
+    .panel {
+      border: 1px solid rgba(234, 220, 229, 0.9);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .search-panel { padding: clamp(20px, 4vw, 32px); }
+
+    .section-label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+
+    .mode-option { position: relative; }
+    .mode-option input { position: absolute; opacity: 0; pointer-events: none; }
+
+    .mode-option span {
+      display: flex;
+      min-height: 64px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border: 2px solid var(--line);
+      border-radius: 15px;
+      background: #fff;
+      color: var(--muted);
+      font-weight: 750;
+      text-align: center;
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .mode-option span::before {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border-radius: 50%;
+      background: #f4edf1;
+      content: attr(data-number);
+      font-size: 0.75rem;
+    }
+
+    .mode-option input:checked + span {
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      box-shadow: 0 0 0 3px rgba(165, 50, 114, 0.09);
+    }
+
+    .mode-option input:checked + span::before { color: #fff; background: var(--primary); }
+    .mode-option input:focus-visible + span { outline: 3px solid rgba(110, 85, 166, 0.35); outline-offset: 2px; }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .field[hidden] { display: none; }
+    .field label { display: block; margin-bottom: 7px; font-weight: 800; }
+
+    .text-input {
+      width: 100%;
+      height: 52px;
+      padding: 0 15px;
+      border: 2px solid var(--line);
+      border-radius: 13px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      transition: 150ms ease;
+    }
+
+    .text-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(110, 85, 166, 0.1); }
+    .text-input::placeholder { color: #aaa0aa; }
+
+    .hint {
+      margin: 7px 2px 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .hint strong { color: var(--primary-dark); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+
+    .button {
+      min-height: 46px;
+      padding: 0 19px;
+      border: 0;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 150ms ease;
+    }
+
+    .button:hover:not(:disabled) { transform: translateY(-1px); }
+    .button:disabled { opacity: 0.52; cursor: wait; }
+    .button-primary { color: #fff; background: linear-gradient(135deg, var(--primary), #c24a87); box-shadow: 0 8px 18px rgba(165, 50, 114, 0.22); }
+    .button-secondary { color: var(--ink); background: #f3edf1; }
+    .button-update { margin-left: auto; color: var(--accent); background: #f1edfb; }
+
+    .status-panel {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 16px;
+      padding: 15px 18px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #aaa0aa;
+      box-shadow: 0 0 0 5px rgba(117, 108, 124, 0.09);
+    }
+
+    .status-panel[data-kind="loading"] .status-dot { background: var(--accent); animation: pulse 1.1s infinite; }
+    .status-panel[data-kind="success"] .status-dot { background: var(--success); }
+    .status-panel[data-kind="error"] .status-dot { background: var(--danger); }
+    .status-main { margin: 0; font-weight: 750; }
+    .status-meta { margin: 1px 0 0; color: var(--muted); font-size: 0.82rem; }
+
+    @keyframes pulse { 50% { box-shadow: 0 0 0 9px rgba(110, 85, 166, 0.08); } }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 34px 2px 13px;
+    }
+
+    .results-header h2 { margin: 0; font-size: 1.25rem; }
+    .results-count { color: var(--muted); font-size: 0.9rem; }
+
+    .empty {
+      padding: 42px 22px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .speaker-group { margin-bottom: 12px; overflow: hidden; }
+    .speaker-group summary { display: flex; align-items: center; gap: 12px; padding: 16px 18px; list-style: none; cursor: pointer; }
+    .speaker-group summary::-webkit-details-marker { display: none; }
+    .speaker-group summary::before { content: "＋"; color: var(--primary); font-weight: 900; }
+    .speaker-group[open] summary::before { content: "−"; }
+    .speaker-group summary:hover { background: rgba(255, 240, 247, 0.65); }
+    .speaker-title { min-width: 0; flex: 1; }
+    .speaker-name { display: block; width: fit-content; font-size: 1.05rem; font-weight: 850; }
+    .ranking-panel { margin-top: 18px; padding: 0; overflow: hidden; }
+    .ranking-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; }
+    .ranking-head h2 { margin: 0; font-size: 1.12rem; }
+    .ranking-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .ranking-body { border-top: 1px solid var(--border); padding: 8px 18px 18px; }
+    .ranking-note { margin: 8px 0 14px; color: var(--muted); font-size: .88rem; }
+    .ranking-list { list-style: none; margin: 0; padding: 0; }
+    .ranking-row { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 6px; border-bottom: 1px solid var(--border); }
+    .ranking-row:last-child { border-bottom: 0; }
+    .ranking-rank { color: var(--muted); font-weight: 850; text-align: right; }
+    .ranking-name { min-width: 0; font-weight: 800; overflow-wrap: anywhere; }
+    .ranking-count { color: var(--primary); font-weight: 900; font-variant-numeric: tabular-nums; }
+    .first-match { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 0.83rem; text-overflow: ellipsis; white-space: nowrap; }
+    .count-pill { flex: 0 0 auto; padding: 4px 10px; border-radius: 999px; color: var(--primary-dark); background: var(--primary-soft); font-size: 0.82rem; font-weight: 800; }
+    .lines { border-top: 1px solid var(--line); padding: 5px 18px 12px; }
+
+    .line-item {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 10px;
+      padding: 15px 0;
+      border-bottom: 1px solid #f0e7ed;
+    }
+
+    .line-item:last-child { border-bottom: 0; }
+    .line-number { color: #a397a1; font-size: 0.82rem; text-align: right; }
+    .badge { display: inline-block; margin-bottom: 5px; padding: 2px 7px; border-radius: 5px; color: #5c478a; background: #eee9fb; font-size: 0.72rem; font-weight: 800; }
+    .quote { margin: 0; white-space: pre-line; }
+    .quote + .quote { margin-top: 6px; color: #625a66; font-size: 0.9rem; }
+    .source-link { display: inline-block; margin-top: 7px; color: var(--accent); font-size: 0.79rem; text-decoration: none; }
+    .source-link:hover { text-decoration: underline; }
+    mark { padding: 0 0.08em; border-radius: 3px; color: inherit; background: #ffe28a; }
+
+    .footer-note { margin: 25px 3px 0; color: var(--muted); font-size: 0.78rem; text-align: center; }
+
+    @media (max-width: 650px) {
+      .shell { width: min(100% - 20px, 1120px); padding-top: 24px; }
+      .mode-grid { grid-template-columns: 1fr; gap: 8px; }
+      .mode-option span { min-height: 50px; justify-content: flex-start; }
+      .button { flex: 1 1 auto; }
+      .button-update { width: 100%; margin-left: 0; }
+      .status-panel { align-items: flex-start; }
+      .speaker-group summary { padding: 14px; }
+      .lines { padding-inline: 13px; }
+      .first-match { max-width: 66vw; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">Magia Exedra Story Transcripts</p>
+      <h1>キャラクター・セリフ検索</h1>
+      <p class="lead">物語の日本語・英語セリフを、話者名やキーワードから探せます。</p>
+    </header>
+
+    <form id="searchForm" class="panel search-panel" novalidate>
+      <span class="section-label">検索方法を選ぶ</span>
+      <div class="mode-grid" role="radiogroup" aria-label="検索方法">
+        <label class="mode-option">
+          <input type="radio" name="mode" value="character" checked>
+          <span data-number="1">キャラ名のみ</span>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="mode" value="dialogue">
+          <span data-number="2">セリフのみ</span>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="mode" value="both">
+          <span data-number="3">どっちも</span>
+        </label>
+      </div>
+
+      <div class="fields">
+        <div id="characterField" class="field">
+          <label for="characterInput">キャラクター名</label>
+          <input id="characterInput" class="text-input" type="search" autocomplete="off" placeholder="例：綾野梨花">
+          <p class="hint"><strong>名前がうろ覚えでもOK！</strong> 例：綾〇梨? → 綾野梨花<br>「_・〇・○・?・？」は、どれも分からない1文字の代わりに使えます。</p>
+        </div>
+
+        <div id="dialogueField" class="field" hidden>
+          <label for="dialogueInput">セリフ</label>
+          <input id="dialogueInput" class="text-input" type="search" autocomplete="off" placeholder="例：万々歳、なの">
+          <p class="hint">入力したキーワードを含む日本語・英語セリフを探します。</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="searchButton" class="button button-primary" type="submit">検索する</button>
+        <button id="clearButton" class="button button-secondary" type="button">条件クリア</button>
+        <button id="updateButton" class="button button-update" type="button">Wikiから更新</button>
+      </div>
+    </form>
+
+    <section id="statusPanel" class="panel status-panel" data-kind="idle" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <div>
+        <p id="statusMain" class="status-main">保存データを確認しています…</p>
+        <p id="statusMeta" class="status-meta"></p>
+      </div>
+    </section>
+
+    <section class="panel ranking-panel" aria-labelledby="rankingTitle">
+      <div class="ranking-head">
+        <h2 id="rankingTitle">キャラ別セリフ数ランキング</h2>
+        <div class="ranking-actions">
+          <button id="rankingToggleButton" class="button button-secondary" type="button" aria-expanded="false">Top20を表示</button>
+          <button id="rankingDownloadButton" class="button button-secondary" type="button" disabled>全順位をTXT出力</button>
+        </div>
+      </div>
+      <div id="rankingBody" class="ranking-body" hidden>
+        <p id="rankingNote" class="ranking-note">データの準備後に集計します。</p>
+        <ol id="rankingList" class="ranking-list"></ol>
+      </div>
+    </section>
+
+    <section aria-labelledby="resultsTitle">
+      <div class="results-header">
+        <h2 id="resultsTitle">検索結果</h2>
+        <span id="resultsCount" class="results-count"></span>
+      </div>
+      <div id="results"><div class="panel empty">データの準備後、検索条件を入力してください。</div></div>
+    </section>
+
+    <p class="footer-note">Source: Puella Magi Wiki / Magia Exedra Story Transcripts</p>
+  </main>
+
+  <script>
+  (() => {
+    "use strict";
+
+    // MediaWiki API returns canonical page titles with underscores normalized to spaces.
+    const INDEX_TITLE = "Magia Exedra Story Transcripts";
+    const SUBPAGE_PREFIX = `${INDEX_TITLE}/`;
+    const API_URL = "https://wiki.puella-magi.net/w/api.php";
+    const WIKI_URL = "https://wiki.puella-magi.net/";
+    const DB_NAME = "magia-exedra-transcript-search";
+    const DB_VERSION = 1;
+    const CACHE_VERSION = 3;
+    const WILDCARDS = new Set(["_", "〇", "○", "?", "？"]);
+    const JAPANESE_RE = /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u;
+
+    const state = {
+      mode: "character",
+      records: [],
+      cacheInfo: null,
+      updating: false,
+      dbAvailable: true
+    };
+
+    const ui = {
+      form: document.getElementById("searchForm"),
+      modes: [...document.querySelectorAll('input[name="mode"]')],
+      characterField: document.getElementById("characterField"),
+      dialogueField: document.getElementById("dialogueField"),
+      characterInput: document.getElementById("characterInput"),
+      dialogueInput: document.getElementById("dialogueInput"),
+      searchButton: document.getElementById("searchButton"),
+      clearButton: document.getElementById("clearButton"),
+      updateButton: document.getElementById("updateButton"),
+      statusPanel: document.getElementById("statusPanel"),
+      statusMain: document.getElementById("statusMain"),
+      statusMeta: document.getElementById("statusMeta"),
+      results: document.getElementById("results"),
+      resultsCount: document.getElementById("resultsCount"),
+      rankingToggleButton: document.getElementById("rankingToggleButton"),
+      rankingDownloadButton: document.getElementById("rankingDownloadButton"),
+      rankingBody: document.getElementById("rankingBody"),
+      rankingNote: document.getElementById("rankingNote"),
+      rankingList: document.getElementById("rankingList")
+    };
+
+    function normalize(value) {
+      return String(value ?? "")
+        .normalize("NFKC")
+        .toLocaleLowerCase()
+        .replace(/\s+/gu, " ")
+        .trim();
+    }
+
+    function escapeRegExp(value) {
+      return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function characterPattern(input) {
+      const source = [...normalize(input)]
+        .map(character => WILDCARDS.has(character) ? "." : escapeRegExp(character))
+        .join("");
+      return source ? new RegExp(source, "iu") : null;
+    }
+
+    function selectedMode() {
+      return ui.modes.find(input => input.checked)?.value || "character";
+    }
+
+    function updateMode() {
+      state.mode = selectedMode();
+      const needsCharacter = state.mode === "character" || state.mode === "both";
+      const needsDialogue = state.mode === "dialogue" || state.mode === "both";
+      ui.characterField.hidden = !needsCharacter;
+      ui.dialogueField.hidden = !needsDialogue;
+    }
+
+    function setStatus(kind, main, meta = "") {
+      ui.statusPanel.dataset.kind = kind;
+      ui.statusMain.textContent = main;
+      ui.statusMeta.textContent = meta;
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      try {
+        return new Intl.DateTimeFormat("ja-JP", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+      } catch (_) {
+        return String(value);
+      }
+    }
+
+    function setBusy(isBusy) {
+      state.updating = isBusy;
+      ui.updateButton.disabled = isBusy;
+      ui.searchButton.disabled = isBusy && state.records.length === 0;
+      ui.updateButton.textContent = isBusy ? "更新中…" : "Wikiから更新";
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+          reject(new Error("このブラウザではIndexedDBを利用できません。"));
+          return;
+        }
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains("cache")) db.createObjectStore("cache", { keyPath: "key" });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error("保存領域を開けませんでした。"));
+      });
+    }
+
+    async function readCache() {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction("cache", "readonly");
+        const request = transaction.objectStore("cache").get("dataset");
+        request.onsuccess = () => {
+          db.close();
+          const value = request.result;
+          resolve(value?.version === CACHE_VERSION ? value : null);
+        };
+        request.onerror = () => {
+          db.close();
+          reject(request.error || new Error("保存データを読み込めませんでした。"));
+        };
+      });
+    }
+
+    async function writeCache(dataset) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction("cache", "readwrite");
+        transaction.objectStore("cache").put(dataset);
+        transaction.oncomplete = () => { db.close(); resolve(); };
+        transaction.onerror = () => { db.close(); reject(transaction.error || new Error("データを保存できませんでした。")); };
+        transaction.onabort = () => { db.close(); reject(transaction.error || new Error("データの保存が中断されました。")); };
+      });
+    }
+
+    function apiUrl(params) {
+      const query = new URLSearchParams({
+        action: "parse",
+        format: "json",
+        formatversion: "2",
+        origin: "*",
+        ...params
+      });
+      return `${API_URL}?${query}`;
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function fetchJsonp(url, timeout = 30000) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `__magiaExedraJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        const jsonpUrl = new URL(url);
+        jsonpUrl.searchParams.set("callback", callbackName);
+        let timer;
+
+        const cleanUp = () => {
+          clearTimeout(timer);
+          script.remove();
+          try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+        };
+
+        window[callbackName] = json => {
+          cleanUp();
+          if (json?.error) reject(new Error(json.error.info || json.error.code || "APIエラー"));
+          else resolve(json);
+        };
+        script.onerror = () => {
+          cleanUp();
+          reject(new Error("Wikiへ接続できませんでした。"));
+        };
+        timer = setTimeout(() => {
+          cleanUp();
+          reject(new Error("Wikiからの応答がタイムアウトしました。"));
+        }, timeout);
+        script.src = jsonpUrl.href;
+        document.head.append(script);
+      });
+    }
+
+    async function fetchJson(url, attempts = 3) {
+      let lastError;
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 30000);
+        try {
+          const response = await fetch(url, { signal: controller.signal, credentials: "omit" });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const json = await response.json();
+          if (json.error) throw new Error(json.error.info || json.error.code || "APIエラー");
+          return json;
+        } catch (error) {
+          lastError = error;
+          if (attempt + 1 < attempts) await wait(500 * (2 ** attempt));
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      try {
+        return await fetchJsonp(url);
+      } catch (jsonpError) {
+        throw lastError || jsonpError || new Error("通信に失敗しました。");
+      }
+    }
+
+    async function fetchTranscriptTitles() {
+      const json = await fetchJson(apiUrl({ page: INDEX_TITLE, prop: "links|revid" }));
+      const links = json.parse?.links || [];
+      const titles = links
+        .map(link => link.title)
+        .filter(title => typeof title === "string" && title.startsWith(SUBPAGE_PREFIX));
+      return [...new Set(titles)];
+    }
+
+    function textFromCell(cell) {
+      const clone = cell.cloneNode(true);
+      clone.querySelectorAll("br").forEach(br => br.replaceWith("\uE000"));
+      return clone.textContent
+        .replace(/\u00a0/g, " ")
+        .replace(/\s*\uE000\s*/g, "\n")
+        .replace(/[ \t\f\v]+/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    function splitSpeaker(rawName) {
+      const cleaned = rawName.replace(/^\s*\(Narration\)\s*/i, "").replace(/\s+/g, " ").trim();
+      const slash = cleaned.indexOf("/");
+      if (slash < 0) {
+        return JAPANESE_RE.test(cleaned)
+          ? { speakerEn: "", speakerJa: cleaned || "話者不明" }
+          : { speakerEn: cleaned, speakerJa: cleaned ? "" : "話者不明" };
+      }
+      return {
+        speakerEn: cleaned.slice(0, slash).trim(),
+        speakerJa: cleaned.slice(slash + 1).trim()
+      };
+    }
+
+    function pageUrl(title) {
+      return new URL(title.replaceAll(" ", "_"), WIKI_URL).href;
+    }
+
+    function parseTranscript(html, title, pageOrder) {
+      const documentNode = new DOMParser().parseFromString(html, "text/html");
+      const records = [];
+      let rowOrder = 0;
+
+      for (const row of documentNode.querySelectorAll("tr")) {
+        const cells = [...row.querySelectorAll(":scope > td")];
+        if (!cells.length) continue;
+
+        const speakerLink = [...row.querySelectorAll("a")].find(link => {
+          const name = link.textContent.replace(/\s+/g, " ").trim();
+          const href = link.getAttribute("href") || "";
+          return name.includes("/") && !href.includes("/File:") && !/\.(?:ogg|mp3|wav)$/i.test(href);
+        });
+
+        const candidateCells = cells.filter(cell => {
+          if (speakerLink && cell.contains(speakerLink)) return false;
+          if (cell.querySelector('audio, a[href*="/File:"], a[href$=".ogg"], a[href$=".mp3"]')) return false;
+          return Boolean(textFromCell(cell));
+        });
+
+        if ((!speakerLink && candidateCells.length < 2) || candidateCells.length === 0) continue;
+
+        let quoteEn = "";
+        let quoteJa = "";
+        if (candidateCells.length >= 2) {
+          quoteEn = textFromCell(candidateCells.at(-2));
+          quoteJa = textFromCell(candidateCells.at(-1));
+        } else {
+          const onlyQuote = textFromCell(candidateCells[0]);
+          if (JAPANESE_RE.test(onlyQuote)) quoteJa = onlyQuote;
+          else quoteEn = onlyQuote;
+        }
+        if (!quoteEn && !quoteJa) continue;
+
+        const rawSpeaker = speakerLink?.textContent || "";
+        const speaker = splitSpeaker(rawSpeaker);
+        const firstCellText = textFromCell(cells[0]);
+        const narration = /^\s*\(Narration\)/i.test(firstCellText) || /^\s*\(Narration\)/i.test(row.textContent);
+
+        records.push({
+          ...speaker,
+          quoteEn,
+          quoteJa,
+          narration,
+          pageTitle: title.slice(SUBPAGE_PREFIX.length).replaceAll("_", " "),
+          pageUrl: pageUrl(title),
+          pageOrder,
+          rowOrder: rowOrder++
+        });
+      }
+      return records;
+    }
+
+    async function fetchTranscript(title, pageOrder) {
+      const json = await fetchJson(apiUrl({ page: title, prop: "text|revid" }));
+      const html = json.parse?.text;
+      if (typeof html !== "string") throw new Error("本文HTMLがありません。");
+      return parseTranscript(html, title, pageOrder);
+    }
+
+    async function mapWithConcurrency(items, limit, worker, onProgress) {
+      const results = new Array(items.length);
+      let nextIndex = 0;
+      let completed = 0;
+      const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (true) {
+          const index = nextIndex++;
+          if (index >= items.length) return;
+          try {
+            results[index] = { ok: true, value: await worker(items[index], index) };
+          } catch (error) {
+            results[index] = { ok: false, error, item: items[index] };
+          }
+          completed += 1;
+          onProgress?.(completed, items.length);
+          await wait(120);
+        }
+      });
+      await Promise.all(runners);
+      return results;
+    }
+
+    async function updateFromWiki({ automatic = false } = {}) {
+      if (state.updating) return;
+      setBusy(true);
+      setStatus("loading", "物語ページの一覧を取得しています…", "初回は少し時間がかかります。");
+
+      try {
+        const titles = await fetchTranscriptTitles();
+        if (!titles.length) throw new Error("検索対象ページを見つけられませんでした。");
+
+        const pageResults = await mapWithConcurrency(
+          titles,
+          3,
+          fetchTranscript,
+          (done, total) => setStatus("loading", `Wikiから取得中… ${done} / ${total}ページ`, "この画面を開いたままお待ちください。")
+        );
+
+        const failures = pageResults.filter(result => !result.ok);
+        const newRecords = pageResults.filter(result => result.ok).flatMap(result => result.value);
+        if (!newRecords.length) throw new Error("セリフを取得できませんでした。");
+
+        if (failures.length && state.records.length) {
+          const failedNames = failures.slice(0, 3).map(result => result.item.slice(SUBPAGE_PREFIX.length)).join("、");
+          setStatus("error", `${failures.length}ページの取得に失敗したため、以前の保存データを使用します。`, failedNames + (failures.length > 3 ? " ほか" : ""));
+          return;
+        }
+
+        const dataset = {
+          key: "dataset",
+          version: CACHE_VERSION,
+          fetchedAt: new Date().toISOString(),
+          pageCount: titles.length,
+          failedPages: failures.map(result => result.item),
+          records: newRecords
+        };
+
+        state.records = dataset.records;
+        state.cacheInfo = dataset;
+        renderRanking();
+        let storageNote = "";
+        try {
+          await writeCache(dataset);
+        } catch (error) {
+          state.dbAvailable = false;
+          storageNote = " ブラウザに保存できなかったため、次回は再取得します。";
+          console.warn(error);
+        }
+
+        const partialNote = failures.length ? `（${failures.length}ページは取得失敗）` : "";
+        setStatus(
+          failures.length ? "error" : "success",
+          `準備完了：${newRecords.length.toLocaleString()}件のセリフ ${partialNote}`,
+          `${titles.length}ページ・${formatDate(dataset.fetchedAt)}更新。${storageNote}`
+        );
+        if (!automatic) runSearch(false);
+      } catch (error) {
+        const cached = state.records.length > 0;
+        setStatus(
+          "error",
+          cached ? "Wikiの更新に失敗しました。以前の保存データはそのまま使えます。" : "Wikiからデータを取得できませんでした。",
+          `${error?.message || error} インターネット接続を確認して「Wikiから更新」を押してください。`
+        );
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function recordMatches(record, mode, characterQuery, dialogueQuery) {
+      const needsCharacter = mode === "character" || mode === "both";
+      const needsDialogue = mode === "dialogue" || mode === "both";
+      if (needsCharacter) {
+        const pattern = characterPattern(characterQuery);
+        const names = normalize(`${record.speakerJa} ${record.speakerEn}`);
+        if (!pattern || !pattern.test(names)) return false;
+      }
+      if (needsDialogue) {
+        const needle = normalize(dialogueQuery);
+        const dialogue = normalize(`${record.quoteJa} ${record.quoteEn}`);
+        if (!needle || !dialogue.includes(needle)) return false;
+      }
+      return true;
+    }
+
+    function makeElement(tagName, className, text) {
+      const element = document.createElement(tagName);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function appendHighlighted(container, text, needle) {
+      if (!text) return;
+      const directNeedle = String(needle || "").trim();
+      if (!directNeedle) {
+        container.textContent = text;
+        return;
+      }
+
+      const regex = new RegExp(escapeRegExp(directNeedle), "giu");
+      let match;
+      let lastIndex = 0;
+      let found = false;
+      while ((match = regex.exec(text)) !== null) {
+        found = true;
+        container.append(document.createTextNode(text.slice(lastIndex, match.index)));
+        container.append(makeElement("mark", "", match[0]));
+        lastIndex = match.index + match[0].length;
+        if (!match[0].length) regex.lastIndex += 1;
+      }
+      if (found) {
+        container.append(document.createTextNode(text.slice(lastIndex)));
+      } else if (normalize(text).includes(normalize(directNeedle))) {
+        container.append(makeElement("mark", "", text));
+      } else {
+        container.textContent = text;
+      }
+    }
+
+    const SPEAKER_ALIASES_JA = new Map([
+      ["小さいキュゥべえ", "小さなキュゥべえ"]
+    ]);
+
+    const SPEAKER_CANONICAL_EN = new Map([
+      ["小さなキュゥべえ", "Lil' Kyubey"]
+    ]);
+
+    function cleanSpeakerName(value) {
+      return String(value || "").normalize("NFKC").replace(/\s+/gu, " ").trim();
+    }
+
+    function canonicalSpeaker(record) {
+      let speakerJa = cleanSpeakerName(record.speakerJa);
+      let speakerEn = cleanSpeakerName(record.speakerEn);
+      speakerJa = SPEAKER_ALIASES_JA.get(speakerJa) || speakerJa;
+      speakerEn = SPEAKER_CANONICAL_EN.get(speakerJa) || speakerEn;
+
+      const key = speakerJa
+        ? `ja:${normalize(speakerJa).replace(/\s+/gu, "")}`
+        : speakerEn ? `en:${normalize(speakerEn)}` : "";
+      const label = speakerJa && speakerEn && speakerJa !== speakerEn
+        ? `${speakerJa} / ${speakerEn}`
+        : speakerJa || speakerEn || "話者不明";
+      return { key, label };
+    }
+
+    function speakerLabel(record) {
+      return canonicalSpeaker(record).label;
+    }
+
+    function speakerRanking() {
+      const counts = new Map();
+      for (const record of state.records) {
+        const speaker = canonicalSpeaker(record);
+        if (!speaker.key || speaker.label === "話者不明") continue;
+        const current = counts.get(speaker.key);
+        if (current) current.count += 1;
+        else counts.set(speaker.key, { name: speaker.label, count: 1 });
+      }
+      return [...counts.values()]
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "ja"));
+    }
+
+    function renderRanking() {
+      const ranking = speakerRanking();
+      ui.rankingList.replaceChildren();
+      const fragment = document.createDocumentFragment();
+      ranking.slice(0, 20).forEach((entry, index) => {
+        const row = makeElement("li", "ranking-row");
+        row.append(
+          makeElement("span", "ranking-rank", `${index + 1}位`),
+          makeElement("span", "ranking-name", entry.name),
+          makeElement("span", "ranking-count", `${entry.count.toLocaleString()}件`)
+        );
+        fragment.append(row);
+      });
+      ui.rankingList.append(fragment);
+      ui.rankingNote.textContent = ranking.length
+        ? `収録された全話者 ${ranking.length.toLocaleString()}人を集計（キャラ名付きの内心・回想ナレーションを含み、話者名のない地の文は除外）。同数は名前順です。`
+        : "集計できる話者が見つかりませんでした。";
+      ui.rankingDownloadButton.disabled = ranking.length === 0;
+    }
+
+    function toggleRanking() {
+      const willShow = ui.rankingBody.hidden;
+      ui.rankingBody.hidden = !willShow;
+      ui.rankingToggleButton.textContent = willShow ? "Top20を非表示" : "Top20を表示";
+      ui.rankingToggleButton.setAttribute("aria-expanded", String(willShow));
+      if (willShow) renderRanking();
+    }
+
+    function downloadRanking() {
+      const ranking = speakerRanking();
+      if (!ranking.length) return;
+      const fetchedAt = state.cacheInfo?.fetchedAt ? formatDate(state.cacheInfo.fetchedAt) : "不明";
+      const lines = [
+        "Magia Exedra キャラ別セリフ数ランキング",
+        `集計日時: ${new Intl.DateTimeFormat("ja-JP", { dateStyle: "medium", timeStyle: "medium" }).format(new Date())}`,
+        `Wikiデータ更新: ${fetchedAt}`,
+        `対象: 収録された全話者 ${ranking.length.toLocaleString()}人（キャラ名付きナレーションを含み、話者名のない地の文は除外）`,
+        "",
+        ...ranking.map((entry, index) => `${index + 1}位\t${entry.count}件\t${entry.name}`)
+      ];
+      const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "セリフの多さランキング.txt";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function renderResults(matches, mode, characterQuery, dialogueQuery) {
+      ui.results.replaceChildren();
+      if (!matches.length) {
+        ui.results.append(makeElement("div", "panel empty", "条件に合うセリフは見つかりませんでした。"));
+        ui.resultsCount.textContent = "0件";
+        return;
+      }
+
+      const groups = new Map();
+      for (const record of matches) {
+        const key = canonicalSpeaker(record).key || "unknown";
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(record);
+      }
+      const sortedGroups = [...groups.values()].sort((a, b) =>
+        b.length - a.length || speakerLabel(a[0]).localeCompare(speakerLabel(b[0]), "ja")
+      );
+
+      const fragment = document.createDocumentFragment();
+      for (const rows of sortedGroups) {
+        const details = makeElement("details", "panel speaker-group");
+        const summary = document.createElement("summary");
+        const title = makeElement("span", "speaker-title");
+        const name = makeElement("span", "speaker-name", speakerLabel(rows[0]));
+        if (mode === "character" || mode === "both") name.style.background = "linear-gradient(transparent 68%, rgba(255, 226, 138, .72) 0)";
+        const previewText = rows[0].quoteJa || rows[0].quoteEn;
+        const preview = makeElement("span", "first-match", previewText.replace(/\s+/g, " "));
+        title.append(name, preview);
+        summary.append(title, makeElement("span", "count-pill", `${rows.length.toLocaleString()}件`));
+        details.append(summary);
+
+        const lines = makeElement("div", "lines");
+        rows.forEach((record, index) => {
+          const item = makeElement("article", "line-item");
+          item.append(makeElement("div", "line-number", String(index + 1)));
+          const content = makeElement("div", "line-content");
+          if (record.narration) content.append(makeElement("span", "badge", "ナレーション"));
+          if (record.quoteJa) {
+            const quote = makeElement("p", "quote");
+            appendHighlighted(quote, record.quoteJa, (mode === "dialogue" || mode === "both") ? dialogueQuery : "");
+            content.append(quote);
+          }
+          if (record.quoteEn) {
+            const quote = makeElement("p", "quote");
+            appendHighlighted(quote, record.quoteEn, (mode === "dialogue" || mode === "both") ? dialogueQuery : "");
+            content.append(quote);
+          }
+          const source = makeElement("a", "source-link", record.pageTitle);
+          source.href = record.pageUrl;
+          source.target = "_blank";
+          source.rel = "noopener noreferrer";
+          content.append(source);
+          item.append(content);
+          lines.append(item);
+        });
+        details.append(lines);
+        fragment.append(details);
+      }
+
+      ui.results.append(fragment);
+      ui.resultsCount.textContent = `${matches.length.toLocaleString()}件・${sortedGroups.length.toLocaleString()}人`;
+    }
+
+    function showInputMessage(message) {
+      ui.results.replaceChildren(makeElement("div", "panel empty", message));
+      ui.resultsCount.textContent = "";
+    }
+
+    function runSearch(scroll = true) {
+      updateMode();
+      if (!state.records.length) {
+        showInputMessage("データの準備がまだ完了していません。");
+        return;
+      }
+
+      const characterQuery = ui.characterInput.value.trim();
+      const dialogueQuery = ui.dialogueInput.value.trim();
+      if ((state.mode === "character" || state.mode === "both") && !characterQuery) {
+        showInputMessage("キャラクター名を入力してください。");
+        ui.characterInput.focus();
+        return;
+      }
+      if ((state.mode === "dialogue" || state.mode === "both") && !dialogueQuery) {
+        showInputMessage("セリフのキーワードを入力してください。");
+        ui.dialogueInput.focus();
+        return;
+      }
+
+      const matches = state.records
+        .filter(record => recordMatches(record, state.mode, characterQuery, dialogueQuery))
+        .sort((a, b) => a.pageOrder - b.pageOrder || a.rowOrder - b.rowOrder);
+      renderResults(matches, state.mode, characterQuery, dialogueQuery);
+      if (scroll) document.getElementById("resultsTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function clearConditions() {
+      ui.characterInput.value = "";
+      ui.dialogueInput.value = "";
+      showInputMessage("検索条件を入力してください。");
+      const activeInput = state.mode === "dialogue" ? ui.dialogueInput : ui.characterInput;
+      activeInput.focus();
+    }
+
+    async function initialize() {
+      updateMode();
+      try {
+        const cached = await readCache();
+        if (cached?.records?.length) {
+          state.records = cached.records;
+          state.cacheInfo = cached;
+          renderRanking();
+          const partial = cached.failedPages?.length ? `・未取得 ${cached.failedPages.length}ページ` : "";
+          setStatus("success", `保存データを読み込みました：${state.records.length.toLocaleString()}件`, `${cached.pageCount}ページ・${formatDate(cached.fetchedAt)}更新${partial}`);
+          showInputMessage("検索条件を入力してください。");
+          return;
+        }
+      } catch (error) {
+        state.dbAvailable = false;
+        console.warn(error);
+      }
+      await updateFromWiki({ automatic: true });
+    }
+
+    ui.modes.forEach(input => input.addEventListener("change", () => {
+      updateMode();
+      showInputMessage("検索条件を入力してください。");
+      (state.mode === "dialogue" ? ui.dialogueInput : ui.characterInput).focus();
+    }));
+    ui.form.addEventListener("submit", event => { event.preventDefault(); runSearch(); });
+    ui.clearButton.addEventListener("click", clearConditions);
+    ui.updateButton.addEventListener("click", () => updateFromWiki({ automatic: false }));
+    ui.rankingToggleButton.addEventListener("click", toggleRanking);
+    ui.rankingDownloadButton.addEventListener("click", downloadRanking);
+
+    window.MagiaExedraSearch = Object.freeze({ normalize, characterPattern, recordMatches, parseTranscript });
+    initialize();
+  })();
+  </script>
+</body>
+</html>
